@@ -28,8 +28,13 @@ pip install -q -r requirements.txt
 
 # Check MongoDB connection
 echo "🔍 Checking MongoDB connection..."
-if ! command -v mongod &> /dev/null; then
-    echo "⚠️  MongoDB not found. Make sure MongoDB is running or update MONGODB_URI in .env"
+echo "   Note: If using MongoDB Atlas or Docker, this check may show a warning but the system will still work."
+if ! command -v mongod &> /dev/null && ! nc -z localhost 27017 2>/dev/null; then
+    echo "⚠️  Local MongoDB not detected. Ensure MongoDB is running or configure MONGODB_URI in .env"
+    echo "   For Docker: docker run -d -p 27017:27017 mongo:latest"
+    echo "   For Atlas: Update MONGODB_URI in .env with your connection string"
+else
+    echo "✓ MongoDB connectivity detected"
 fi
 
 # Start API in background

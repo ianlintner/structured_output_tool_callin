@@ -37,7 +37,15 @@ async def browse_pets_tool(
     async with httpx.AsyncClient() as client:
         params = {"available_only": True}
         if pet_type:
-            params["pet_type"] = pet_type
+            # Validate pet_type against allowed values
+            valid_types = ["dog", "cat", "bird", "fish", "rabbit", "hamster"]
+            if pet_type.lower() not in valid_types:
+                return {
+                    "pets": [],
+                    "message": f"Invalid pet type '{pet_type}'. Valid types: {', '.join(valid_types)}",
+                    "total": 0
+                }
+            params["pet_type"] = pet_type.lower()
         if max_price is not None:
             params["max_price"] = max_price
         if min_age_months is not None:
@@ -126,7 +134,10 @@ async def place_order_tool(
                 "order": order
             }
         except httpx.HTTPStatusError as e:
-            error_detail = e.response.json().get("detail", str(e))
+            try:
+                error_detail = e.response.json().get("detail", str(e))
+            except (ValueError, KeyError):
+                error_detail = str(e)
             return {
                 "success": False,
                 "order_id": None,
@@ -199,7 +210,10 @@ async def check_order_status_tool(order_id: str) -> dict:
                     "status": None,
                     "message": f"Order {order_id} not found. Please check the order ID and try again."
                 }
-            error_detail = e.response.json().get("detail", str(e))
+            try:
+                error_detail = e.response.json().get("detail", str(e))
+            except (ValueError, KeyError):
+                error_detail = str(e)
             return {
                 "success": False,
                 "order_id": order_id,

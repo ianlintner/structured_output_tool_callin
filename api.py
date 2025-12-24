@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from typing import Optional, List
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 from database import connect_to_mongo, close_mongo_connection, get_database
@@ -188,8 +188,8 @@ async def create_order(order_input: PlaceOrderInput):
         items=order_items,
         total_amount=total_amount,
         status=OrderStatus.PENDING,
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc)
     )
     
     # Save to database
@@ -253,7 +253,7 @@ async def update_order_status(order_id: str, new_status: OrderStatus):
     
     result = await orders_collection.update_one(
         {"id": order_id},
-        {"$set": {"status": new_status.value, "updated_at": datetime.utcnow()}}
+        {"$set": {"status": new_status.value, "updated_at": datetime.now(timezone.utc)}}
     )
     
     if result.matched_count == 0:

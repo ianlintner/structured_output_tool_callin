@@ -4,7 +4,7 @@ These models ensure type safety and validation for the pet shop system.
 """
 from typing import Optional, List, Literal
 from pydantic import BaseModel, Field, ConfigDict
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 
 
@@ -76,8 +76,8 @@ class Order(BaseModel):
     items: List[OrderItem] = Field(min_length=1, description="List of ordered items")
     total_amount: float = Field(gt=0, description="Total order amount")
     status: OrderStatus = Field(default=OrderStatus.PENDING, description="Order status")
-    created_at: datetime = Field(default_factory=datetime.utcnow, description="Order creation timestamp")
-    updated_at: datetime = Field(default_factory=datetime.utcnow, description="Last update timestamp")
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Order creation timestamp")
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Last update timestamp")
 
 
 # Tool Calling Models (Structured Outputs for Azure OpenAI)
