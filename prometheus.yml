@@ -1,0 +1,28 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'petshop-monitor'
+
+scrape_configs:
+  # Pet Shop API metrics
+  - job_name: 'petshop-api'
+    static_configs:
+      - targets: ['api:9091']
+        labels:
+          service: 'api'
+          environment: 'production'
+
+  # OpenTelemetry Collector metrics
+  - job_name: 'otel-collector'
+    static_configs:
+      - targets: ['otel-collector:8888', 'otel-collector:8889']
+        labels:
+          service: 'otel-collector'
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'

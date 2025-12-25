@@ -1,0 +1,42 @@
+# Chainlit for chat interface
+chainlit>=1.0.0
+
+# Azure OpenAI for AI
+openai>=1.10.0
+
+# Pydantic for structured outputs and validation
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+email-validator>=2.0.0  # Required for EmailStr validation
+
+# FastAPI for REST API
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+
+# MongoDB driver
+motor>=3.3.0
+pymongo>=4.6.0
+
+# Environment management
+python-dotenv>=1.0.0
+
+# HTTP client for tool calling
+httpx>=0.26.0
+
+# Additional utilities
+python-multipart>=0.0.6
+
+# OpenTelemetry for tracing and metrics
+opentelemetry-api>=1.21.0
+opentelemetry-sdk>=1.21.0
+opentelemetry-instrumentation-fastapi>=0.42b0
+opentelemetry-instrumentation-httpx>=0.42b0
+opentelemetry-instrumentation-pymongo>=0.42b0
+opentelemetry-exporter-otlp>=1.21.0
+opentelemetry-exporter-prometheus>=0.42b0
+opentelemetry-instrumentation-logging>=0.42b0
+
+# Prometheus for metrics
+prometheus-client>=0.19.0
+prometheus-fastapi-instrumentator>=6.1.0
+
