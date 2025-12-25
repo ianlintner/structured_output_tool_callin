@@ -23,7 +23,6 @@ try:
     from observability import (
         init_observability, record_request, record_pet_inventory,
         record_order, increment_active_requests, decrement_active_requests,
-        get_tracer
     )
     OBSERVABILITY_ENABLED = True
 except ImportError:
