@@ -9,6 +9,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application files
 COPY models.py .
 COPY tools.py .
+COPY observability.py .
 COPY app.py .
 COPY .chainlit .chainlit
 

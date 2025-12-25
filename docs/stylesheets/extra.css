@@ -1,0 +1,89 @@
+/* Custom styles for Pet Paradise Shop documentation */
+
+:root {
+  --code-bg: #f5f5f5;
+  --code-border: #e0e0e0;
+}
+
+/* Enhanced code blocks */
+.highlight {
+  border-radius: 4px;
+  margin: 1em 0;
+}
+
+/* Mermaid diagram styling */
+.mermaid {
+  text-align: center;
+  margin: 2em 0;
+  background: #fafafa;
+  padding: 1em;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+/* Copy button enhancement */
+.md-clipboard {
+  color: var(--md-primary-fg-color);
+}
+
+/* Admonition custom colors */
+.admonition.note {
+  border-left-color: #448aff;
+}
+
+.admonition.tip {
+  border-left-color: #00c853;
+}
+
+.admonition.warning {
+  border-left-color: #ff9100;
+}
+
+.admonition.danger {
+  border-left-color: #ff1744;
+}
+
+/* Code tabs */
+.tabbed-set {
+  margin: 1em 0;
+}
+
+/* Enhanced tables */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+}
+
+table th {
+  background: var(--md-primary-fg-color);
+  color: white;
+  font-weight: 600;
+}
+
+/* Responsive images */
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+/* API endpoint badges */
+.api-badge {
+  display: inline-block;
+  padding: 0.25em 0.6em;
+  font-size: 0.75em;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.25rem;
+  margin-right: 0.5em;
+}
+
+.api-badge.get { background-color: #61affe; }
+.api-badge.post { background-color: #49cc90; }
+.api-badge.put { background-color: #fca130; }
+.api-badge.delete { background-color: #f93e3e; }

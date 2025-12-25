@@ -2,13 +2,14 @@
 FastAPI REST API for Pet Shop ordering service.
 Provides endpoints for browsing pets, creating orders, and checking order status.
 """
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from typing import Optional, List
 import os
 from datetime import datetime, timezone
 import uuid
+import time
 
 from database import connect_to_mongo, close_mongo_connection, get_database
 from models import (
@@ -17,11 +18,25 @@ from models import (
     PetInventoryResponse, OrderStatusResponse
 )
 
+# Import observability
+try:
+    from observability import (
+        init_observability, record_request, record_pet_inventory,
+        record_order, increment_active_requests, decrement_active_requests,
+        get_tracer
+    )
+    OBSERVABILITY_ENABLED = True
+except ImportError:
+    OBSERVABILITY_ENABLED = False
+    print("⚠️  Observability modules not available. Install opentelemetry packages for full monitoring.")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan manager"""
     # Startup
+    if OBSERVABILITY_ENABLED:
+        init_observability()
     await connect_to_mongo()
     yield
     # Shutdown
@@ -44,6 +59,33 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# Middleware for request tracking
+@app.middleware("http")
+async def track_requests(request: Request, call_next):
+    """Middleware to track requests and record metrics."""
+    if OBSERVABILITY_ENABLED:
+        increment_active_requests()
+    
+    start_time = time.time()
+    
+    try:
+        response = await call_next(request)
+        duration = time.time() - start_time
+        
+        if OBSERVABILITY_ENABLED:
+            record_request(
+                method=request.method,
+                endpoint=request.url.path,
+                status=response.status_code,
+                duration=duration
+            )
+        
+        return response
+    finally:
+        if OBSERVABILITY_ENABLED:
+            decrement_active_requests()
 
 
 @app.get("/")
@@ -114,6 +156,10 @@ async def get_pets(
     
     # Convert to Pydantic models
     pets = [Pet(**pet) for pet in pets_list]
+    
+    # Record inventory metrics
+    if OBSERVABILITY_ENABLED:
+        record_pet_inventory(pet_type if pet_type else "all", len(pets))
     
     return PetInventoryResponse(
         pets=pets,
@@ -201,6 +247,10 @@ async def create_order(order_input: PlaceOrderInput):
             {"id": pet_id},
             {"$set": {"available": False}}
         )
+    
+    # Record order metrics
+    if OBSERVABILITY_ENABLED:
+        record_order(OrderStatus.PENDING.value)
     
     return order
 

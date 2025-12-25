@@ -11,6 +11,14 @@ from models import (
     BrowsePetsOutput, PlaceOrderOutput
 )
 
+# Import observability
+try:
+    from observability import get_tracer, record_tool_call
+    OBSERVABILITY_ENABLED = True
+    tracer = get_tracer(__name__)
+except ImportError:
+    OBSERVABILITY_ENABLED = False
+
 
 # Get API base URL from environment or default to localhost
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
@@ -34,6 +42,19 @@ async def browse_pets_tool(
     Returns:
         Dictionary with list of available pets and summary message
     """
+    # Start tracing span
+    if OBSERVABILITY_ENABLED:
+        with tracer.start_as_current_span("browse_pets_tool") as span:
+            span.set_attribute("pet_type", pet_type or "all")
+            span.set_attribute("max_price", max_price or 0)
+            result = await _browse_pets_impl(pet_type, max_price, min_age_months, max_age_months)
+            record_tool_call("browse_pets", result.get("total", 0) > 0)
+            return result
+    else:
+        return await _browse_pets_impl(pet_type, max_price, min_age_months, max_age_months)
+
+
+async def _browse_pets_impl(pet_type, max_price, min_age_months, max_age_months) -> dict:
     async with httpx.AsyncClient() as client:
         params = {"available_only": True}
         if pet_type:
