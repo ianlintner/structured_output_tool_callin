@@ -10,6 +10,8 @@ A complete pet shop ordering and support system built with Chainlit, Azure OpenA
 - **🛒 Order Management**: Complete order placement and tracking system
 - **📦 REST API**: FastAPI-based backend with MongoDB database
 - **✅ Structured Outputs**: Azure OpenAI structured outputs with strict validation
+- **📚 OpenAPI Documentation**: Interactive API docs at `/docs` and OpenAPI spec at `/openapi.json`
+- **📊 Observability**: OpenTelemetry tracing, Prometheus metrics, Jaeger UI
 
 ## 🏗️ Architecture
 
@@ -137,6 +139,12 @@ Assistant: [Shows order status and details]
 ```
 
 ## 🔧 API Endpoints
+
+The API provides comprehensive OpenAPI documentation:
+
+- **Interactive Docs (Swagger UI)**: http://localhost:8000/docs
+- **ReDoc Documentation**: http://localhost:8000/redoc
+- **OpenAPI JSON Spec**: http://localhost:8000/openapi.json
 
 ### GET /pets
 Browse available pets with optional filters.

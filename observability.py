@@ -2,25 +2,26 @@
 Observability configuration for Pet Paradise Shop.
 Includes OpenTelemetry tracing, Prometheus metrics, and Jaeger integration.
 """
+
 import logging
 import os
 from typing import Optional
 
-from opentelemetry import trace, metrics
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from dotenv import load_dotenv
+from opentelemetry import metrics, trace
 from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.exporter.prometheus import PrometheusMetricReader
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
-from opentelemetry.instrumentation.pymongo import PymongoInstrumentor
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.instrumentation.pymongo import PymongoInstrumentor
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
-from opentelemetry.sdk.resources import Resource, SERVICE_NAME, SERVICE_VERSION
-from prometheus_client import start_http_server, Counter, Histogram, Gauge
-from dotenv import load_dotenv
+from opentelemetry.sdk.resources import SERVICE_NAME, SERVICE_VERSION, Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from prometheus_client import Counter, Gauge, Histogram, start_http_server
 
 load_dotenv()
 
@@ -34,87 +35,63 @@ ENABLE_TRACING = os.getenv("ENABLE_TRACING", "true").lower() == "true"
 ENABLE_METRICS = os.getenv("ENABLE_METRICS", "true").lower() == "true"
 
 # Resource describes the service
-resource = Resource.create({
-    SERVICE_NAME: SERVICE_NAME_VALUE,
-    SERVICE_VERSION: SERVICE_VERSION_VALUE,
-    "deployment.environment": os.getenv("ENVIRONMENT", "development")
-})
+resource = Resource.create(
+    {
+        SERVICE_NAME: SERVICE_NAME_VALUE,
+        SERVICE_VERSION: SERVICE_VERSION_VALUE,
+        "deployment.environment": os.getenv("ENVIRONMENT", "development"),
+    }
+)
 
 # Initialize tracer
 tracer_provider: Optional[TracerProvider] = None
 meter_provider: Optional[MeterProvider] = None
 
 # Prometheus metrics
-request_count = Counter(
-    'petshop_requests_total',
-    'Total number of requests',
-    ['method', 'endpoint', 'status']
-)
+request_count = Counter("petshop_requests_total", "Total number of requests", ["method", "endpoint", "status"])
 
-request_duration = Histogram(
-    'petshop_request_duration_seconds',
-    'Request duration in seconds',
-    ['method', 'endpoint']
-)
+request_duration = Histogram("petshop_request_duration_seconds", "Request duration in seconds", ["method", "endpoint"])
 
-active_requests = Gauge(
-    'petshop_active_requests',
-    'Number of active requests'
-)
+active_requests = Gauge("petshop_active_requests", "Number of active requests")
 
-pet_inventory_count = Gauge(
-    'petshop_inventory_count',
-    'Number of pets in inventory',
-    ['pet_type']
-)
+pet_inventory_count = Gauge("petshop_inventory_count", "Number of pets in inventory", ["pet_type"])
 
-order_count = Counter(
-    'petshop_orders_total',
-    'Total number of orders',
-    ['status']
-)
+order_count = Counter("petshop_orders_total", "Total number of orders", ["status"])
 
-tool_calls = Counter(
-    'petshop_tool_calls_total',
-    'Total number of tool calls',
-    ['tool_name', 'success']
-)
+tool_calls = Counter("petshop_tool_calls_total", "Total number of tool calls", ["tool_name", "success"])
 
 
 def setup_tracing():
     """Configure OpenTelemetry tracing with OTLP and Jaeger exporters."""
     global tracer_provider
-    
+
     if not ENABLE_TRACING:
         logging.info("Tracing is disabled")
         return
-    
+
     try:
         # Create OTLP span exporter
         otlp_exporter = OTLPSpanExporter(
-            endpoint=OTLP_ENDPOINT,
-            insecure=True  # Use secure=True in production with proper certificates
+            endpoint=OTLP_ENDPOINT, insecure=True  # Use secure=True in production with proper certificates
         )
-        
+
         # Create trace provider
         tracer_provider = TracerProvider(resource=resource)
-        
+
         # Add span processor
-        tracer_provider.add_span_processor(
-            BatchSpanProcessor(otlp_exporter)
-        )
-        
+        tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+
         # Set as global tracer provider
         trace.set_tracer_provider(tracer_provider)
-        
+
         # Instrument libraries
         FastAPIInstrumentor().instrument()
         HTTPXClientInstrumentor().instrument()
         PymongoInstrumentor().instrument()
         LoggingInstrumentor().instrument(set_logging_format=True)
-        
+
         logging.info(f"✓ OpenTelemetry tracing configured with endpoint: {OTLP_ENDPOINT}")
-        
+
     except Exception as e:
         logging.error(f"Failed to setup tracing: {e}")
         logging.info("Application will continue without tracing")
@@ -123,42 +100,35 @@ def setup_tracing():
 def setup_metrics():
     """Configure OpenTelemetry metrics with Prometheus exporter."""
     global meter_provider
-    
+
     if not ENABLE_METRICS:
         logging.info("Metrics are disabled")
         return
-    
+
     try:
         # Create Prometheus metric reader
         prometheus_reader = PrometheusMetricReader()
-        
+
         # Create OTLP metric exporter
-        otlp_metric_exporter = OTLPMetricExporter(
-            endpoint=OTLP_ENDPOINT,
-            insecure=True
-        )
-        
+        otlp_metric_exporter = OTLPMetricExporter(endpoint=OTLP_ENDPOINT, insecure=True)
+
         # Create periodic exporting metric reader for OTLP
         otlp_reader = PeriodicExportingMetricReader(
-            otlp_metric_exporter,
-            export_interval_millis=60000  # Export every 60 seconds
+            otlp_metric_exporter, export_interval_millis=60000  # Export every 60 seconds
         )
-        
+
         # Create meter provider with both readers
-        meter_provider = MeterProvider(
-            resource=resource,
-            metric_readers=[prometheus_reader, otlp_reader]
-        )
-        
+        meter_provider = MeterProvider(resource=resource, metric_readers=[prometheus_reader, otlp_reader])
+
         # Set as global meter provider
         metrics.set_meter_provider(meter_provider)
-        
+
         # Start Prometheus HTTP server
         start_http_server(port=PROMETHEUS_PORT)
-        
+
         logging.info(f"✓ Prometheus metrics server started on port {PROMETHEUS_PORT}")
         logging.info(f"✓ OTLP metrics configured with endpoint: {OTLP_ENDPOINT}")
-        
+
     except Exception as e:
         logging.error(f"Failed to setup metrics: {e}")
         logging.info("Application will continue without metrics")

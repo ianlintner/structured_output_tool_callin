@@ -2,15 +2,18 @@
 Pydantic models for structured outputs and data validation.
 These models ensure type safety and validation for the pet shop system.
 """
-from typing import Optional, List
-from pydantic import BaseModel, Field, ConfigDict
+
 from datetime import datetime, timezone
 from enum import Enum
+from typing import List, Optional
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 # Enums for type safety
 class PetType(str, Enum):
     """Available pet types in the shop"""
+
     DOG = "dog"
     CAT = "cat"
     BIRD = "bird"
@@ -21,6 +24,7 @@ class PetType(str, Enum):
 
 class OrderStatus(str, Enum):
     """Order status states"""
+
     PENDING = "pending"
     CONFIRMED = "confirmed"
     PROCESSING = "processing"
@@ -32,8 +36,9 @@ class OrderStatus(str, Enum):
 # Pet Models
 class Pet(BaseModel):
     """Pet model for inventory"""
+
     model_config = ConfigDict(use_enum_values=True)
-    
+
     id: str = Field(description="Unique identifier for the pet")
     name: str = Field(description="Name/breed of the pet")
     type: PetType = Field(description="Type of pet")
@@ -46,6 +51,7 @@ class Pet(BaseModel):
 
 class PetInventoryResponse(BaseModel):
     """Response model for pet inventory listing"""
+
     pets: List[Pet] = Field(description="List of available pets")
     total: int = Field(description="Total number of pets")
     filtered_by_type: Optional[PetType] = Field(None, description="Filter applied")
@@ -54,6 +60,7 @@ class PetInventoryResponse(BaseModel):
 # Order Models
 class OrderItem(BaseModel):
     """Individual item in an order"""
+
     pet_id: str = Field(description="ID of the pet being ordered")
     pet_name: str = Field(description="Name of the pet")
     price: float = Field(description="Price at time of order")
@@ -61,6 +68,7 @@ class OrderItem(BaseModel):
 
 class CustomerInfo(BaseModel):
     """Customer information for order"""
+
     name: str = Field(min_length=1, description="Customer full name")
     email: str = Field(description="Customer email address")
     phone: str = Field(description="Customer phone number")
@@ -69,20 +77,26 @@ class CustomerInfo(BaseModel):
 
 class Order(BaseModel):
     """Order model"""
+
     model_config = ConfigDict(use_enum_values=True)
-    
+
     id: str = Field(description="Unique order identifier")
     customer: CustomerInfo = Field(description="Customer information")
     items: List[OrderItem] = Field(min_length=1, description="List of ordered items")
     total_amount: float = Field(gt=0, description="Total order amount")
     status: OrderStatus = Field(default=OrderStatus.PENDING, description="Order status")
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Order creation timestamp")
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Last update timestamp")
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc), description="Order creation timestamp"
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc), description="Last update timestamp"
+    )
 
 
 # Tool Calling Models (Structured Outputs for Azure OpenAI)
 class BrowsePetsInput(BaseModel):
     """Input parameters for browsing pets"""
+
     pet_type: Optional[PetType] = Field(None, description="Filter by pet type")
     max_price: Optional[float] = Field(None, gt=0, description="Maximum price filter")
     min_age_months: Optional[int] = Field(None, ge=0, description="Minimum age in months")
@@ -91,6 +105,7 @@ class BrowsePetsInput(BaseModel):
 
 class PlaceOrderInput(BaseModel):
     """Input parameters for placing an order"""
+
     customer_name: str = Field(min_length=1, description="Customer full name")
     customer_email: str = Field(description="Customer email address")
     customer_phone: str = Field(description="Customer phone number")
@@ -100,13 +115,15 @@ class PlaceOrderInput(BaseModel):
 
 class CheckOrderStatusInput(BaseModel):
     """Input parameters for checking order status"""
+
     order_id: str = Field(description="Order ID to check")
 
 
 class OrderStatusResponse(BaseModel):
     """Response for order status check"""
+
     model_config = ConfigDict(use_enum_values=True)
-    
+
     order_id: str = Field(description="Order identifier")
     status: OrderStatus = Field(description="Current order status")
     customer_name: str = Field(description="Customer name")
@@ -118,6 +135,7 @@ class OrderStatusResponse(BaseModel):
 # Tool Response Models
 class ToolResponse(BaseModel):
     """Generic tool response wrapper"""
+
     success: bool = Field(description="Whether the operation was successful")
     message: str = Field(description="Human-readable message about the result")
     data: Optional[dict] = Field(None, description="Additional response data")
@@ -125,12 +143,14 @@ class ToolResponse(BaseModel):
 
 class BrowsePetsOutput(BaseModel):
     """Output from browse pets tool"""
+
     pets: List[Pet] = Field(description="List of matching pets")
     message: str = Field(description="Summary message")
 
 
 class PlaceOrderOutput(BaseModel):
     """Output from place order tool"""
+
     order_id: str = Field(description="Created order ID")
     total_amount: float = Field(description="Total order amount")
     message: str = Field(description="Confirmation message")

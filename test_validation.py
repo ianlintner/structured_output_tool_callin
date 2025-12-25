@@ -2,17 +2,26 @@
 Simple validation tests for the pet shop system.
 Tests model validation, imports, and basic functionality.
 """
+
 import asyncio
+
 from models import (
-    Pet, PetType, Order, OrderStatus, CustomerInfo, OrderItem,
-    BrowsePetsInput, PlaceOrderInput, CheckOrderStatusInput
+    BrowsePetsInput,
+    CheckOrderStatusInput,
+    CustomerInfo,
+    Order,
+    OrderItem,
+    OrderStatus,
+    Pet,
+    PetType,
+    PlaceOrderInput,
 )
 
 
 def test_pet_model():
     """Test Pet model validation"""
     print("Testing Pet model...")
-    
+
     pet = Pet(
         id="test001",
         name="Test Dog",
@@ -20,9 +29,9 @@ def test_pet_model():
         description="A test dog",
         price=100.0,
         age_months=6,
-        available=True
+        available=True,
     )
-    
+
     assert pet.id == "test001"
     assert pet.type == "dog"  # Enum should be converted to value
     assert pet.price == 100.0
@@ -32,28 +41,13 @@ def test_pet_model():
 def test_order_model():
     """Test Order model validation"""
     print("Testing Order model...")
-    
-    customer = CustomerInfo(
-        name="Test Customer",
-        email="test@example.com",
-        phone="555-0123",
-        address="123 Test St"
-    )
-    
-    item = OrderItem(
-        pet_id="test001",
-        pet_name="Test Dog",
-        price=100.0
-    )
-    
-    order = Order(
-        id="ORD-TEST",
-        customer=customer,
-        items=[item],
-        total_amount=100.0,
-        status=OrderStatus.PENDING
-    )
-    
+
+    customer = CustomerInfo(name="Test Customer", email="test@example.com", phone="555-0123", address="123 Test St")
+
+    item = OrderItem(pet_id="test001", pet_name="Test Dog", price=100.0)
+
+    order = Order(id="ORD-TEST", customer=customer, items=[item], total_amount=100.0, status=OrderStatus.PENDING)
+
     assert order.id == "ORD-TEST"
     assert order.customer.name == "Test Customer"
     assert len(order.items) == 1
@@ -65,36 +59,33 @@ def test_order_model():
 def test_tool_input_models():
     """Test tool input models"""
     print("Testing tool input models...")
-    
+
     # Test BrowsePetsInput
-    browse_input = BrowsePetsInput(
-        pet_type=PetType.CAT,
-        max_price=500.0
-    )
+    browse_input = BrowsePetsInput(pet_type=PetType.CAT, max_price=500.0)
     assert browse_input.pet_type == "cat"
     assert browse_input.max_price == 500.0
-    
+
     # Test PlaceOrderInput
     place_order = PlaceOrderInput(
         customer_name="Test",
         customer_email="test@example.com",
         customer_phone="555-0123",
         delivery_address="123 Test St",
-        pet_ids=["pet001"]
+        pet_ids=["pet001"],
     )
     assert len(place_order.pet_ids) == 1
-    
+
     # Test CheckOrderStatusInput
     check_status = CheckOrderStatusInput(order_id="ORD-TEST")
     assert check_status.order_id == "ORD-TEST"
-    
+
     print("✓ Tool input models validation passed")
 
 
 def test_imports():
     """Test that all imports work"""
     print("Testing imports...")
-    
+
     try:
         # models symbols are imported at module level via 'from models import ...'
         _pet = Pet(
@@ -107,9 +98,10 @@ def test_imports():
             available=True,
         )
         import tools
+
         print("✓ models symbols imported successfully")
         print("✓ tools.py imports successfully")
-        
+
         # Check tool definitions exist
         assert len(tools.TOOLS_DEFINITIONS) == 3
         assert len(tools.TOOLS_MAP) == 3
@@ -117,7 +109,7 @@ def test_imports():
         assert "place_order" in tools.TOOLS_MAP
         assert "check_order_status" in tools.TOOLS_MAP
         print("✓ Tool definitions are complete")
-        
+
     except ImportError as e:
         print(f"✗ Import error: {e}")
         raise
@@ -126,7 +118,7 @@ def test_imports():
 def test_pydantic_validation():
     """Test Pydantic validation works"""
     print("Testing Pydantic validation...")
-    
+
     try:
         # Should fail - negative price
         Pet(
@@ -136,12 +128,12 @@ def test_pydantic_validation():
             description="Test",
             price=-100.0,  # Invalid
             age_months=6,
-            available=True
+            available=True,
         )
         print("✗ Validation should have failed for negative price")
     except Exception:
         print("✓ Pydantic validation working (negative price rejected)")
-    
+
     try:
         # Should fail - empty name
         PlaceOrderInput(
@@ -149,7 +141,7 @@ def test_pydantic_validation():
             customer_email="test@example.com",
             customer_phone="555",
             delivery_address="123 Test St",
-            pet_ids=["pet001"]
+            pet_ids=["pet001"],
         )
         print("✗ Validation should have failed for empty name")
     except Exception:
@@ -158,10 +150,10 @@ def test_pydantic_validation():
 
 def main():
     """Run all tests"""
-    print("\n" + "="*50)
+    print("\n" + "=" * 50)
     print("Pet Shop System Validation Tests")
-    print("="*50 + "\n")
-    
+    print("=" * 50 + "\n")
+
     try:
         test_imports()
         print()
@@ -172,15 +164,15 @@ def main():
         test_tool_input_models()
         print()
         test_pydantic_validation()
-        
-        print("\n" + "="*50)
+
+        print("\n" + "=" * 50)
         print("✓ All validation tests passed!")
-        print("="*50 + "\n")
-        
+        print("=" * 50 + "\n")
+
     except Exception as e:
-        print("\n" + "="*50)
+        print("\n" + "=" * 50)
         print(f"✗ Tests failed: {e}")
-        print("="*50 + "\n")
+        print("=" * 50 + "\n")
         raise
 
 

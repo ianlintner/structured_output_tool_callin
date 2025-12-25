@@ -1,16 +1,19 @@
 """
 MongoDB database configuration and connection management.
 """
+
+import os
+
+from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import ConnectionFailure
-import os
-from dotenv import load_dotenv
 
 load_dotenv()
 
 
 class Database:
     """Database connection manager"""
+
     client: AsyncIOMotorClient = None
     db = None
 
@@ -22,18 +25,18 @@ async def connect_to_mongo():
     """Establish connection to MongoDB"""
     mongodb_uri = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
     database_name = os.getenv("MONGODB_DATABASE", "petshop")
-    
+
     try:
         db.client = AsyncIOMotorClient(mongodb_uri)
         db.db = db.client[database_name]
-        
+
         # Test the connection
-        await db.client.admin.command('ping')
+        await db.client.admin.command("ping")
         print(f"✓ Connected to MongoDB: {database_name}")
-        
+
         # Initialize collections with sample data if empty
         await initialize_sample_data()
-        
+
     except ConnectionFailure as e:
         print(f"✗ Failed to connect to MongoDB: {e}")
         raise
@@ -54,7 +57,7 @@ async def get_database():
 async def initialize_sample_data():
     """Initialize the database with sample pet data if empty"""
     pets_collection = db.db.pets
-    
+
     # Check if pets collection is empty
     count = await pets_collection.count_documents({})
     if count == 0:
@@ -67,7 +70,7 @@ async def initialize_sample_data():
                 "price": 1200.00,
                 "age_months": 3,
                 "available": True,
-                "image_url": "https://example.com/golden-retriever.jpg"
+                "image_url": "https://example.com/golden-retriever.jpg",
             },
             {
                 "id": "pet002",
@@ -77,7 +80,7 @@ async def initialize_sample_data():
                 "price": 800.00,
                 "age_months": 2,
                 "available": True,
-                "image_url": "https://example.com/british-shorthair.jpg"
+                "image_url": "https://example.com/british-shorthair.jpg",
             },
             {
                 "id": "pet003",
@@ -87,7 +90,7 @@ async def initialize_sample_data():
                 "price": 950.00,
                 "age_months": 6,
                 "available": True,
-                "image_url": "https://example.com/beagle.jpg"
+                "image_url": "https://example.com/beagle.jpg",
             },
             {
                 "id": "pet004",
@@ -97,7 +100,7 @@ async def initialize_sample_data():
                 "price": 650.00,
                 "age_months": 8,
                 "available": True,
-                "image_url": "https://example.com/siamese.jpg"
+                "image_url": "https://example.com/siamese.jpg",
             },
             {
                 "id": "pet005",
@@ -107,7 +110,7 @@ async def initialize_sample_data():
                 "price": 150.00,
                 "age_months": 4,
                 "available": True,
-                "image_url": "https://example.com/cockatiel.jpg"
+                "image_url": "https://example.com/cockatiel.jpg",
             },
             {
                 "id": "pet006",
@@ -117,7 +120,7 @@ async def initialize_sample_data():
                 "price": 25.00,
                 "age_months": 6,
                 "available": True,
-                "image_url": "https://example.com/betta.jpg"
+                "image_url": "https://example.com/betta.jpg",
             },
             {
                 "id": "pet007",
@@ -127,7 +130,7 @@ async def initialize_sample_data():
                 "price": 300.00,
                 "age_months": 5,
                 "available": True,
-                "image_url": "https://example.com/holland-lop.jpg"
+                "image_url": "https://example.com/holland-lop.jpg",
             },
             {
                 "id": "pet008",
@@ -137,7 +140,7 @@ async def initialize_sample_data():
                 "price": 45.00,
                 "age_months": 2,
                 "available": True,
-                "image_url": "https://example.com/hamster.jpg"
+                "image_url": "https://example.com/hamster.jpg",
             },
             {
                 "id": "pet009",
@@ -147,7 +150,7 @@ async def initialize_sample_data():
                 "price": 1500.00,
                 "age_months": 4,
                 "available": True,
-                "image_url": "https://example.com/german-shepherd.jpg"
+                "image_url": "https://example.com/german-shepherd.jpg",
             },
             {
                 "id": "pet010",
@@ -157,9 +160,9 @@ async def initialize_sample_data():
                 "price": 80.00,
                 "age_months": 7,
                 "available": True,
-                "image_url": "https://example.com/parakeets.jpg"
-            }
+                "image_url": "https://example.com/parakeets.jpg",
+            },
         ]
-        
+
         await pets_collection.insert_many(sample_pets)
         print(f"✓ Initialized database with {len(sample_pets)} sample pets")
