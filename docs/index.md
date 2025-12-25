@@ -41,19 +41,13 @@ Visit [http://localhost:8001](http://localhost:8001) to access the chat interfac
 Learn how to install and configure the system.
 
 ### [User Guide](user-guide/chat-interface.md)
-Discover how to use the chat interface and REST API.
+Discover how to use the chat interface.
 
 ### [Architecture](architecture/overview.md)
 Understand the system design and components.
 
-### [API Reference](api-reference/models.md)
-Explore the detailed API documentation.
-
-### [Deployment](deployment/docker.md)
-Deploy the system using Docker or production environments.
-
-### [Development](development/contributing.md)
-Contribute to the project and run tests.
+### [Observability](observability/overview.md)
+Monitor and trace system performance.
 
 ## 💡 Example Usage
 
@@ -117,4 +111,4 @@ MIT License - See LICENSE file for details.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please see our [Contributing Guide](development/contributing.md) for details.
+Contributions are welcome! Please check the repository for contribution guidelines.

@@ -223,4 +223,3 @@ Make sure all Azure OpenAI variables are set correctly.
 - Explore the [Chat Interface Guide](../user-guide/chat-interface.md)
 - Read about [Configuration Options](configuration.md)
 - Learn about the [Architecture](../architecture/overview.md)
-- Review [API Documentation](../api-reference/api.md)

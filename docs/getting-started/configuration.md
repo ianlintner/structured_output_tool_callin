@@ -323,5 +323,4 @@ Instrumentator().instrument(app).expose(app)
 ## Next Steps
 
 - Start the system with [Quick Start](quickstart.md)
-- Learn about [Deployment](../deployment/docker.md) options
 - Explore [Architecture](../architecture/overview.md)

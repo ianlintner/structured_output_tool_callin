@@ -353,6 +353,4 @@ graph LR
 
 ## Next Steps
 
-- Explore [Component Details](components.md)
-- Understand [Data Flow](data-flow.md)
 - Learn about [Observability](../observability/overview.md)

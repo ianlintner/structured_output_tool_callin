@@ -283,6 +283,5 @@ rate(petshop_orders_total[5m])
 
 ## Next Steps
 
-- [Tracing Guide](tracing.md) - Detailed tracing documentation
-- [Metrics Guide](metrics.md) - Metrics and alerting
-- [Monitoring Guide](monitoring.md) - Dashboard setup
+- Review the [Architecture Overview](../architecture/overview.md)
+- Explore [Getting Started](../getting-started/quickstart.md)
