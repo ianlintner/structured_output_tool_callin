@@ -2,7 +2,7 @@
 Pydantic models for structured outputs and data validation.
 These models ensure type safety and validation for the pet shop system.
 """
-from typing import Optional, List, Literal
+from typing import Optional, List
 from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime, timezone
 from enum import Enum
