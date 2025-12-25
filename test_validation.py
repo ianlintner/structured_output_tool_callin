@@ -96,9 +96,18 @@ def test_imports():
     print("Testing imports...")
     
     try:
-        import models
+        # models symbols are imported at module level via 'from models import ...'
+        _pet = Pet(
+            id="import-test",
+            name="Import Test Pet",
+            type=PetType.DOG,
+            description="Import test",
+            price=1.0,
+            age_months=1,
+            available=True,
+        )
         import tools
-        print("✓ models.py imports successfully")
+        print("✓ models symbols imported successfully")
         print("✓ tools.py imports successfully")
         
         # Check tool definitions exist
