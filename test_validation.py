@@ -102,12 +102,11 @@ def test_imports():
         print("✓ tools.py imports successfully")
         
         # Check tool definitions exist
-        from tools import TOOLS_DEFINITIONS, TOOLS_MAP
-        assert len(TOOLS_DEFINITIONS) == 3
-        assert len(TOOLS_MAP) == 3
-        assert "browse_pets" in TOOLS_MAP
-        assert "place_order" in TOOLS_MAP
-        assert "check_order_status" in TOOLS_MAP
+        assert len(tools.TOOLS_DEFINITIONS) == 3
+        assert len(tools.TOOLS_MAP) == 3
+        assert "browse_pets" in tools.TOOLS_MAP
+        assert "place_order" in tools.TOOLS_MAP
+        assert "check_order_status" in tools.TOOLS_MAP
         print("✓ Tool definitions are complete")
         
     except ImportError as e:
