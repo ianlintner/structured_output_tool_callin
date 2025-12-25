@@ -5,8 +5,7 @@ This script demonstrates the structured output and tool calling capabilities.
 import asyncio
 import json
 from models import (
-    Pet, PetType, Order, OrderStatus,
-    BrowsePetsInput, PlaceOrderInput
+    Pet, PetType, PlaceOrderInput
 )
 
 
