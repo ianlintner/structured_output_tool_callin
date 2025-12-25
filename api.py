@@ -5,7 +5,7 @@ Provides endpoints for browsing pets, creating orders, and checking order status
 from fastapi import FastAPI, HTTPException, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from typing import Optional, List
+from typing import Optional
 import os
 from datetime import datetime, timezone
 import uuid
