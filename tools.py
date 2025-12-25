@@ -5,11 +5,6 @@ These functions connect the AI agent to the pet shop API.
 import httpx
 import os
 from typing import Optional, List
-from models import (
-    BrowsePetsInput, PlaceOrderInput, CheckOrderStatusInput,
-    PetInventoryResponse, Order, OrderStatusResponse,
-    BrowsePetsOutput, PlaceOrderOutput
-)
 
 # Import observability
 try:
