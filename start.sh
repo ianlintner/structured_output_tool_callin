@@ -39,20 +39,31 @@ fi
 
 # Start API in background
 echo "🚀 Starting API server..."
+echo "📝 API logs will be written to: api.log"
 python api.py > api.log 2>&1 &
 API_PID=$!
 echo "API server started (PID: $API_PID)"
 
-# Wait for API to be ready
+# Wait for API to be ready with retry logic
 echo "⏳ Waiting for API to be ready..."
-sleep 5
+MAX_RETRIES=12
+RETRY_COUNT=0
+WAIT_TIME=5
 
-# Check API health
-if curl -s http://localhost:8000/health > /dev/null; then
-    echo "✅ API is healthy"
-else
-    echo "⚠️  API health check failed"
-fi
+while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+    if curl -s http://localhost:8000/health > /dev/null 2>&1; then
+        echo "✅ API is healthy"
+        break
+    fi
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+        echo "   Waiting... (attempt $RETRY_COUNT/$MAX_RETRIES)"
+        sleep $WAIT_TIME
+    else
+        echo "⚠️  API health check failed after $MAX_RETRIES attempts"
+        echo "   Check api.log for details: tail -f api.log"
+    fi
+done
 
 # Start Chainlit
 echo "🚀 Starting Chainlit chat interface..."
@@ -62,7 +73,7 @@ echo ""
 echo "Press Ctrl+C to stop all services"
 echo ""
 
-chainlit run app.py
+chainlit run app.py --host 0.0.0.0 --port 8001
 
 # Cleanup on exit
 echo ""

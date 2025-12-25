@@ -3,7 +3,6 @@ Example usage and demo of the Pet Shop system.
 This script demonstrates the structured output and tool calling capabilities.
 """
 
-import asyncio
 import json
 
 from models import Pet, PetType, PlaceOrderInput
@@ -45,7 +44,7 @@ def demo_structured_models():
     # Show validation in action
     print("3. Demonstrating validation:")
     try:
-        invalid_pet = Pet(
+        Pet(
             id="demo002",
             name="Invalid Pet",
             type=PetType.CAT,
@@ -130,7 +129,7 @@ def demo_conversation_flow():
             if "action" in step:
                 print(f"   Action: {step['action']}")
             if "params" in step:
-                print(f"   Params: {json.dumps(step['params'], indent=10)}")
+                print(f"   Params: {json.dumps(step['params'], indent=2)}")
             print(f"   → {step['response']}")
         print()
 

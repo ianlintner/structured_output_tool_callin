@@ -85,12 +85,11 @@ async def main(message: cl.Message):
     message_history.append({"role": "user", "content": message.content})
 
     # Create a message to show we're processing
-    response_message = cl.Message(content="")
+    response_message = cl.Message(content="Processing your request...")
     await response_message.send()
 
     # Call Azure OpenAI with tool calling
     current_content = ""
-    tool_calls_made = []
 
     try:
         # Make initial API call
@@ -146,8 +145,6 @@ async def main(message: cl.Message):
                             "content": json.dumps(tool_response),
                         }
                     )
-
-                    tool_calls_made.append({"function": function_name, "result": tool_response})
                 else:
                     # Unknown function
                     message_history.append(

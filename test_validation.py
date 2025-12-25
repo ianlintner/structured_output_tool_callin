@@ -3,7 +3,7 @@ Simple validation tests for the pet shop system.
 Tests model validation, imports, and basic functionality.
 """
 
-import asyncio
+from pydantic import ValidationError
 
 from models import (
     BrowsePetsInput,
@@ -131,7 +131,7 @@ def test_pydantic_validation():
             available=True,
         )
         print("✗ Validation should have failed for negative price")
-    except Exception:
+    except ValidationError:
         print("✓ Pydantic validation working (negative price rejected)")
 
     try:
@@ -144,7 +144,7 @@ def test_pydantic_validation():
             pet_ids=["pet001"],
         )
         print("✗ Validation should have failed for empty name")
-    except Exception:
+    except ValidationError:
         print("✓ Pydantic validation working (empty name rejected)")
 
 

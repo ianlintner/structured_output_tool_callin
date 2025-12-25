@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import List, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 # Enums for type safety
@@ -70,7 +70,7 @@ class CustomerInfo(BaseModel):
     """Customer information for order"""
 
     name: str = Field(min_length=1, description="Customer full name")
-    email: str = Field(description="Customer email address")
+    email: EmailStr = Field(description="Customer email address")
     phone: str = Field(description="Customer phone number")
     address: str = Field(min_length=5, description="Delivery address")
 
@@ -107,7 +107,7 @@ class PlaceOrderInput(BaseModel):
     """Input parameters for placing an order"""
 
     customer_name: str = Field(min_length=1, description="Customer full name")
-    customer_email: str = Field(description="Customer email address")
+    customer_email: EmailStr = Field(description="Customer email address")
     customer_phone: str = Field(description="Customer phone number")
     delivery_address: str = Field(min_length=5, description="Delivery address")
     pet_ids: List[str] = Field(min_length=1, description="List of pet IDs to order")

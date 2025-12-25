@@ -56,14 +56,6 @@ async def _browse_pets_impl(pet_type, max_price, min_age_months, max_age_months)
     async with httpx.AsyncClient() as client:
         params = {"available_only": True}
         if pet_type:
-            # Validate pet_type against allowed values
-            valid_types = ["dog", "cat", "bird", "fish", "rabbit", "hamster"]
-            if pet_type.lower() not in valid_types:
-                return {
-                    "pets": [],
-                    "message": f"Invalid pet type '{pet_type}'. Valid types: {', '.join(valid_types)}",
-                    "total": 0,
-                }
             params["pet_type"] = pet_type.lower()
         if max_price is not None:
             params["max_price"] = max_price

@@ -112,10 +112,14 @@ This API provides endpoints for:
 )
 
 # Add CORS middleware
+# WARNING: This configuration allows all origins with credentials for development.
+# For production, specify explicit allowed origins:
+# allow_origins=["https://yourdomain.com", "https://www.yourdomain.com"]
+# Or remove allow_credentials if using wildcard origins.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=["*"],  # Change to specific origins in production
+    allow_credentials=True,  # Set to False if using wildcard origins in production
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -257,18 +261,28 @@ async def create_order(order_input: PlaceOrderInput):
 
     Returns:
     - Created order with order ID and details
+
+    Note: Uses find_one_and_update for atomic pet availability updates to prevent race conditions.
     """
     db = await get_database()
     pets_collection = db.pets
     orders_collection = db.orders
 
-    # Validate all pets exist and are available
+    # Atomically check and mark pets as unavailable to prevent race conditions
     order_items = []
     total_amount = 0.0
 
     for pet_id in order_input.pet_ids:
-        pet_data = await pets_collection.find_one({"id": pet_id, "available": True})
+        # Use find_one_and_update to atomically check availability and mark as unavailable
+        pet_data = await pets_collection.find_one_and_update(
+            {"id": pet_id, "available": True},
+            {"$set": {"available": False}},
+            return_document=False,  # Return the document before update
+        )
         if not pet_data:
+            # Rollback: mark previously reserved pets as available again
+            for item in order_items:
+                await pets_collection.update_one({"id": item.pet_id}, {"$set": {"available": True}})
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Pet {pet_id} is not available")
 
         order_items.append(OrderItem(pet_id=pet_data["id"], pet_name=pet_data["name"], price=pet_data["price"]))
@@ -295,10 +309,6 @@ async def create_order(order_input: PlaceOrderInput):
 
     # Save to database
     await orders_collection.insert_one(order.model_dump())
-
-    # Mark pets as unavailable
-    for pet_id in order_input.pet_ids:
-        await pets_collection.update_one({"id": pet_id}, {"$set": {"available": False}})
 
     # Record order metrics
     if OBSERVABILITY_ENABLED:
