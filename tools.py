@@ -221,7 +221,8 @@ async def check_order_status_tool(order_id: str) -> dict:
                 "order_id": order_id,
                 "status": status,
                 "message": message,
-                "details": status_data
+                "details": status_data,
+                "created_at": created_at
             }
         except httpx.HTTPStatusError as e:
             if e.response.status_code == 404:
